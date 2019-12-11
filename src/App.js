@@ -100,10 +100,12 @@ class Game extends React.Component {
     handleClick(rowIndex, columnIndex) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
-        const squares = current.squares.slice();
-        // if (calculateWinner(squares) || squares[i]) {
-        //     return;
-        // }
+        const squaresRow = current.squares.slice();
+        const squares = new Array(squaresRow.length);
+        for (let i = 0; i < squares.length; i++){
+            squares[i] = squaresRow[i].slice();
+        }
+
         if (squares[rowIndex][columnIndex]) {
             return;
         }
@@ -111,19 +113,12 @@ class Game extends React.Component {
         console.log('history: ', history);
         history.push({squares: squares});
         this.setState({
-            // history: history.concat([
-            //     {
-            //         squares: squares
-            //     }
-            // ]),
             history: history,
             stepNumber: history.length - 1,
             xIsNext: !this.state.xIsNext
         });
     }
 
-    //TODO: re-implement time travel function
-    //TODO: figure out why all history elements changed when push one new history
     jumpTo(step) {
         this.setState({
             stepNumber: step,
