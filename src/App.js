@@ -98,7 +98,6 @@ class Game extends React.Component {
     }
 
     handleClick(rowIndex, columnIndex) {
-        console.log('clicked' + rowIndex.toString() + columnIndex.toString());
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
@@ -109,19 +108,22 @@ class Game extends React.Component {
             return;
         }
         squares[rowIndex][columnIndex] = this.state.xIsNext ? "X" : "O";
-        console.log('squares: ', squares);
+        console.log('history: ', history);
+        history.push({squares: squares});
         this.setState({
-            history: history.concat([
-                {
-                    squares: squares
-                }
-            ]),
-            stepNumber: history.length,
+            // history: history.concat([
+            //     {
+            //         squares: squares
+            //     }
+            // ]),
+            history: history,
+            stepNumber: history.length - 1,
             xIsNext: !this.state.xIsNext
         });
     }
 
     //TODO: re-implement time travel function
+    //TODO: figure out why all history elements changed when push one new history
     jumpTo(step) {
         this.setState({
             stepNumber: step,
@@ -132,6 +134,8 @@ class Game extends React.Component {
     render() {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
+        console.log('step#: ', this.state.stepNumber);
+        console.log('current squares: ', current);
         const winner = calculateWinner(current.squares);
         const width = this.state.width;
         const height =this.state.height;
@@ -174,22 +178,22 @@ class Game extends React.Component {
 }
 
 function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
-        }
-    }
+    // const lines = [
+    //     [0, 1, 2],
+    //     [3, 4, 5],
+    //     [6, 7, 8],
+    //     [0, 3, 6],
+    //     [1, 4, 7],
+    //     [2, 5, 8],
+    //     [0, 4, 8],
+    //     [2, 4, 6]
+    // ];
+    // for (let i = 0; i < lines.length; i++) {
+    //     const [a, b, c] = lines[i];
+    //     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+    //         return squares[a];
+    //     }
+    // }
     return null;
 }
 
