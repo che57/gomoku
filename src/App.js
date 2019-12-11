@@ -2,25 +2,36 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-function Square(props) {
-    return (
-        <button className="square" onClick={props.onClick}>
-            {props.value}
-        </button>
-    );
+class Square extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            rowIndex: this.props.rowIndex,
+            columnIndex: this.props.columnIndex
+        };
+    }
+    render(){
+        return (
+            <button className="square" onClick={this.props.onClick}>
+                {this.props.value}
+            </button>
+        );
+    }
 }
 
 class Board extends React.Component {
-    renderSquare(i) {
+
+    renderSquare(rowIndex, columnIndex) {
+        let key = rowIndex.toString() + ',' + columnIndex.toString();
         return (
             <Square
-                value={null}
-                onClick={() => this.props.onClick(i)}
+                key = {key}
+                value = {this.props.squares[rowIndex][columnIndex]}
+                onClick={() => this.props.onClick(rowIndex, columnIndex)}
             />
         );
     }
     render() {
-        //TODO: use array.map to render row and column;
         const squares = this.props.squares;
         const width = this.props.width;
         const height = this.props.height;
@@ -30,12 +41,7 @@ class Board extends React.Component {
                 <div className="board-row" key = {rowIndex}>
                     {
                         row.map((column, columnIndex) => {
-                            // this.renderSquare(columnIndex);
-                            return (
-                                <Square
-                                    value={null}
-                                />
-                            );
+                            return this.renderSquare(rowIndex, columnIndex);
                         })
                     }
                 </div>
@@ -62,11 +68,24 @@ class Game extends React.Component {
             test: 'test',
         };
         // init the board based on the given width and height
+        // squares will be a 2D array with [rowIndex][columnIndex]
+        let initSquares = new Array(this.state.height).fill(null);
+        for (let i = 0; i < initSquares.length; i++){
+            initSquares[i] = new Array(this.state.width).fill(null);
+        }
         this.state.history = [
             {
-                squares: Array(this.state.height).fill(Array(this.state.width).fill(null))
+                squares: initSquares
             }
         ];
+
+        // THIS IS NOT WORKING since js fill the previous array with same null array
+        //
+        // this.state.history = [
+        //     {
+        //         squares: Array(this.state.height).fill(Array(this.state.width).fill(null))
+        //     }
+        // ];
 
         // original history structure
         // this.state.history = [
@@ -78,14 +97,19 @@ class Game extends React.Component {
         console.log(this.state.history);
     }
 
-    handleClick(i) {
+    handleClick(rowIndex, columnIndex) {
+        console.log('clicked' + rowIndex.toString() + columnIndex.toString());
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
+        // if (calculateWinner(squares) || squares[i]) {
+        //     return;
+        // }
+        if (squares[rowIndex][columnIndex]) {
             return;
         }
-        squares[i] = this.state.xIsNext ? "X" : "O";
+        squares[rowIndex][columnIndex] = this.state.xIsNext ? "X" : "O";
+        console.log('squares: ', squares);
         this.setState({
             history: history.concat([
                 {
@@ -97,6 +121,7 @@ class Game extends React.Component {
         });
     }
 
+    //TODO: re-implement time travel function
     jumpTo(step) {
         this.setState({
             stepNumber: step,
@@ -134,7 +159,7 @@ class Game extends React.Component {
                 <div className="game-board">
                     <Board
                         squares={current.squares}
-                        onClick={i => this.handleClick(i)}
+                        onClick={(rowIndex, columnIndex) => this.handleClick(rowIndex, columnIndex)}
                         width = {width}
                         height = {height}
                     />
